@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.ps1": "powershell",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "internet": "cpp",
+        "netfwd": "cpp",
+        "istream": "cpp"
+    }
+}
