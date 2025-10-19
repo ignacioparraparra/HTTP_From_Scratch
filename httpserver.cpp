@@ -19,7 +19,7 @@ int main(void) {
     int                 clientFD;
     int                 epollFD;
     int                 rfd;
-    int                 size;
+    ssize_t             size;
     int                 ret;
     char                buffer[BUFFER_SIZE];
     bool                session = true;
@@ -131,32 +131,40 @@ int main(void) {
         }
 
         for (int n = 0; n < rfd; ++n) {
+            // if listening socket is readable -> pending connection
             if (events[n].data.fd == serverFD) {
                 clientFD = accept(serverFD, NULL, NULL);
                 if (clientFD == -1) {
-                    perror("accept");
-                    exit(errno);
+                    if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+                    perror("accept"); break;
                 }
-                cout << "Client connection established\n";
+                
                 
                 //  setnonblocking(clientFD);
-                fcntl(clientFD, F_SETFD, O_NONBLOCK);
+                int flags = fcntl(clientFD, F_GETFL, 0);
+                fcntl(clientFD, F_SETFD, flags | O_NONBLOCK);
                 ev.events = EPOLLIN | EPOLLET;
                 ev.data.fd = clientFD;
                 // add client to epoll interest list
                 if (epoll_ctl(epollFD, EPOLL_CTL_ADD, clientFD, &ev) == -1) {
-                        perror("epoll_ctl: clientFD");
-                        exit(EXIT_FAILURE);
+                        perror("epoll_ctl add");
+                        close(clientFD);                        
                 }
+
+                cout << "Client connection established on fd: " << clientFD << endl;
+
             } else {
 
-                printf("Currently servicing %i : %i\n", events[n].data.fd, clientFD);
+                printf("Currently servicing %i\n", events[n].data.fd);
 
                 size = recv(events[n].data.fd, buffer, sizeof(buffer), 0);
-                
-                if (size == EAGAIN) {
-                    fprintf(stderr, "EAGAIN TRIGGER %i", errno);
-                    break;
+                if (size == -1) {
+                    if (errno == EAGAIN) break;
+                    if (epoll_ctl(epollFD, EPOLL_CTL_DEL, events[n].data.fd, &ev) == -1) {
+                    perror("epoll_ctl: clientFD");
+                    perror("recv");
+                    close(events[n].data.fd);
+                    }
                 }
 
                 buffer[size] = '\0';
@@ -173,8 +181,6 @@ int main(void) {
                 
                 
                 // do_use_fd(events[n].data.fd)
-                
-
 
                 /*
                 // this uses client FD

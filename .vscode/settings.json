@@ -5,6 +5,11 @@
         "ostream": "cpp",
         "internet": "cpp",
         "netfwd": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "iosfwd": "cpp",
+        "sstream": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp"
     }
 }

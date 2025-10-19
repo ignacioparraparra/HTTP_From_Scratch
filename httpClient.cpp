@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <sstream>
 
 #include "connection.h"
 
@@ -118,14 +119,25 @@ int main() {
     }
     */
     // message loop
-    while (session) {
-        cout << "COMMANDS: EXIT" << endl;
-        cout << "What would you like to send to the server?\n";
-        cin.getline(buffer, sizeof(buffer));
+ 
+   //     cout << "COMMANDS: EXIT" << endl;
+     //   cout << "What would you like to send to the server?\n";
+       // cin.getline(buffer, sizeof(buffer));
+
+            // method -> builds request based on path
+       // server.get(path)
+
+        ostringstream ss;
+        ss << "GET / HTTP/1.1\r\n"
+           << "Host: developer.mozilla.org\r\n"
+           << "Accept: text/html\r\n"
+           << "Accept-Language: fr\r\n\r\n";
+
+        string request = ss.str();
 
         size_t len = strlen(buffer);
 
-        ssize_t sent = send(clientFD, buffer, len, 0);
+        ssize_t sent = send(clientFD, request.c_str(), request.size(), 0);
         if (sent == -1) {
             perror("send");
             close(clientFD);
@@ -136,7 +148,14 @@ int main() {
         if (strncmp(buffer, "EXIT", 5) == 0) {
             session = false;
         }
-    }
+
+        memset(buffer, 0, 1024);
+        
+        ret = recv(clientFD, buffer, sizeof(buffer), 0);
+        buffer[ret] = '\0';
+
+        printf("Recieved: %s\n", buffer);
+    
 
     printf("Disconnecting...\n");
     close(clientFD);
