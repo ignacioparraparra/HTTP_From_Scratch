@@ -1,4 +1,8 @@
+#ifndef HTTPMESSAGE_H
+#define HTTPMESSAGE_H
+
 #include <string>
+#include <unordered_map>
 
 using namespace std;
 
@@ -46,15 +50,30 @@ enum class HttpStatusCode {
 
 class httpRequest {
     public:
-        void setMethod(httpMethod method);
-        void setUri(string);
+        httpRequest(string);
+        ~httpRequest();
+        
+        // Setters 
+        void       setUri(string);
+        void       setMethod(httpMethod);
+        void       setVersion(string);
+        
+        // Getters
+        string     getMethod();
+        void       getHeaders();
+        string     getUri();
+        string     getVersion();
+        void       getRequest();
 
-        httpMethod getMethod();
-        string getUri();
+        // Utils
+        httpMethod stringToMethod(string method);
+        string     methodToString(httpMethod method);
 
     private:
-        string method;
-        string uri;
+        httpMethod                    method;
+        string                        version;
+        string                        uri;
+        unordered_map<string, string> header;
 };
 
 class httpResponse {
@@ -62,7 +81,10 @@ class httpResponse {
         string status;
         string headers;
         string body;
+        string version;
+        string reason;
     private:
-        enum header {};
+        
 };
 
+#endif
