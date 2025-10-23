@@ -70,6 +70,8 @@ int main() {
         }
 
         if (connect(clientFD, node->ai_addr, node->ai_addrlen) == 0) {
+            int one = 1;
+            setsockopt(clientFD, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
             break;
         }
 
@@ -81,7 +83,7 @@ int main() {
         printf("Error no: %i\n", errno);
         close(clientFD);
         clientFD = -1;
-    }   
+    }    
 
     freeaddrinfo(head);
 
@@ -89,43 +91,6 @@ int main() {
         fprintf(stderr, "Could not connect\n");
         exit(EXIT_FAILURE);
     }
-
-
-    /*
-    // SYN
-    if (send(clientFD, SYN, sizeof(SYN), 0) == -1) {
-        perror("send");
-        close(clientFD);
-        exit(errno);       
-    }
-
-    // SYN-ACK
-    size = recv(clientFD, buffer, sizeof(buffer), 0);
-    if (size == -1) {
-        printf("Error on recv: %i\n", errno);
-        close(clientFD);
-        exit(errno);      
-    }
-
-    buffer[size] = '\0';
-        
-    printf("%s\n", buffer);
-
-    // ACK
-    if (send(clientFD, ACK, sizeof(ACK), 0) == -1) {
-        perror("send");
-        close(clientFD);
-        exit(errno);        
-    }
-    */
-    // message loop
- 
-   //     cout << "COMMANDS: EXIT" << endl;
-     //   cout << "What would you like to send to the server?\n";
-       // cin.getline(buffer, sizeof(buffer));
-
-            // method -> builds request based on path
-       // server.get(path)
 
         ostringstream ss;
         ss << "GET / HTTP/1.1\r\n"
@@ -161,3 +126,4 @@ int main() {
     close(clientFD);
     exit(EXIT_SUCCESS);
 }
+
