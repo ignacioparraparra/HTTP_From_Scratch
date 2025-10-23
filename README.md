@@ -14,7 +14,12 @@ This HTTP server creates a TCP socket to then,
 
 ## Features
 - Support basic HTTP/1.1 request and responses
-- Supports creating routes
+- Support creating routes
+
+## TODO
+- Add testing functionality
+- Clean up message parsing
+- Add worker threads
 
 ## Design
 
